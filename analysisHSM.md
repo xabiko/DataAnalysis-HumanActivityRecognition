@@ -1,4 +1,4 @@
-# *Reproducible Research: Peer Assessment 1*
+# *Data Analysis: Human Steps Recognition*
 
 ## Loading and preprocessing the data
 
@@ -27,7 +27,7 @@ x <- aggregate(steps~date,data,sum)[,2]
 hist(x,breaks=20,col = "aquamarine3",main = "Steps per Day Histogram",xlab = "Sum of Steps per Day")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)
+![](analysisHSM_files/figure-html/unnamed-chunk-4-1.png)
 
 * Mean of total number of steps per day: **10766.19**
 
@@ -55,7 +55,7 @@ x <- aggregate(steps~interval,data,mean)
 plot(x$interval, x$steps, type="l", main = "Average daily activity pattern", xlab="5 min interval", ylab="Average steps taken")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)
+![](analysisHSM_files/figure-html/unnamed-chunk-8-1.png)
 
 
 * 5min interval with maximum number of steps (interval,steps): **(835, 206.169811320755)**
@@ -134,7 +134,7 @@ x <- aggregate(steps~date,fullData,sum)[,2]
 hist(x,breaks=20,col = "chartreuse3",main = "Steps per Day Histogram",xlab = "Sum of Steps per Day")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-15-1.png)
+![](analysisHSM_files/figure-html/unnamed-chunk-15-1.png)
 
 * Mean of total number of steps per day: **10765.64**
 
@@ -175,6 +175,6 @@ library(lattice)
 xyplot(steps~interval|day,data=x,layout=c(1,2),type="l")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-21-1.png)
+![](analysisHSM_files/figure-html/unnamed-chunk-21-1.png)
 
 It is noticeable that weekdays have a distribution much more similar to the overall average of steps taken per interval, than weekends. It would have been something very important to consider when imputing the missing values on part 4.
