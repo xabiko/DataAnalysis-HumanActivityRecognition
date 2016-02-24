@@ -3,9 +3,9 @@
 This project was formatted using knitR, an engine for dynamic report generation with R.
 
 * PA1_template_files/figure-html : plot images generated
-* PA1_template.Rmd : original working file for this project. knitR will then "knit" the .md and .html files
-* PA1_template.html : knitted HTML document
-* PA1_template.md : knitted md document
+* PA1_template.Rmd : original working file for this project. knitR will then "knit" the .md and .html files. Plot images not displayed
+* PA1_template.html : knitted HTML document. Raw HTML code
+* [PA1_template.md](https://github.com/xabiko/DataAnalysis-HumanStepsMonitoring/blob/master/PA1_template.md) : knitted md document and formal presentation of the project
 * activity.zip : dataset
 
 ## Introduction
