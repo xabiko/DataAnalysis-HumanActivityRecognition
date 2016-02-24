@@ -1,0 +1,143 @@
+---
+title: "*Reproducible Research: Peer Assessment 1*"
+output: 
+  html_document:
+    keep_md: true
+---
+
+## Loading and preprocessing the data
+
+* Reading from zipped file:
+```{r echo=TRUE}
+data <- read.csv(unz("activity.zip","activity.csv"))
+```
+* Reformatting "date" variable to Date Format:
+```{r echo=TRUE}
+data$date <- as.Date(data$date)
+```
+
+## What is mean total number of steps taken per day?
+
+* Total number of steps taken per day:
+```{r echo=TRUE}
+x <- aggregate(steps~date,data,sum)[,2]
+```
+
+* Histogram of total number of steps taken per day:
+```{r echo=TRUE}
+hist(x,breaks=20,col = "aquamarine3",main = "Steps per Day Histogram",xlab = "Sum of Steps per Day")
+```
+
+* Mean of total number of steps per day: **`r toString(round(mean(x),digits=2))`**
+```{r results="hide"}
+mean(x)
+```
+
+* Median of total number of steps per day: **`r toString(median(x))`**
+```{r results="hide"}
+median(x)
+```
+
+## What is the average daily activity pattern?
+
+* Average number of steps taken per interval:
+```{r echo=TRUE}
+x <- aggregate(steps~interval,data,mean)
+```
+
+* Time series plot of the different intervals vs. average number of steps taken:
+```{r echo=TRUE}
+plot(x$interval, x$steps, type="l", main = "Average daily activity pattern", xlab="5 min interval", ylab="Average steps taken")
+```
+
+
+* 5min interval with maximum number of steps (interval,steps): **(`r toString(x[x$steps==max(x$steps),])`)**
+```{r results="hide"}
+x[x$steps==max(x$steps),]
+```
+
+
+## Imputing missing values
+
+* Total number of NAs: **`r toString(sum(is.na(data$steps)))`**
+```{r results="hide"}
+sum(is.na(data$steps))
+```
+
+* Let's look at the number of NAs that appear each day:
+```{r echo=TRUE}
+x <- aggregate(steps~date,data=data, function(y) {sum(is.na(y))}, na.action = NULL)
+colnames(x) <- c("date","numberNAs")
+```
+* Let's just display the days that have more than 0 NAs:
+```{r echo=TRUE}
+library(knitr)
+kable(x[x$numberNAs>0,],format="markdown")
+```
+
+We can observe that NA values appear on full-day clusters, they're not randomly scattered across the dataset. It is on 8 specific dates where we're missing the entire monitoring data for the day.
+
+I propose filling these empty days with the results from part 3, the average daily activity pattern. The average figures for each interval will be rounded to 0 decimals.
+
+* Generating filled data for NA dates, filling in every interval observation with the average daily activity pattern:
+```{r echo=TRUE}
+# Vector of average step values, previously calculated on part 3:
+averageValSteps <- round(aggregate(steps~interval,data,mean)[,2])
+# Vector of dates with missing data, displayed on the table above:
+dates           <- x[x$numberNAs>0,1]
+# Vector of different intervals:
+intervals       <- unique(data$interval)
+# Merging them all together:
+filledData      <- as.data.frame(cbind(averageValSteps,intervals))
+filledData      <- merge(filledData,dates)
+filledData      <- filledData[,c(1,3,2)]
+colnames(filledData) <- c("steps","date","interval")
+```
+
+* Binding filled data with the original uncomplete data:
+```{r echo=TRUE}
+fullData <- rbind(data[!is.na(data$steps),],filledData)
+fullData <- fullData[order(fullData$date),]
+rownames(fullData) <- c(1:nrow(fullData))
+```
+
+* Histogram of total number of steps taken per day:
+```{r echo=TRUE}
+x <- aggregate(steps~date,fullData,sum)[,2]
+hist(x,breaks=20,col = "chartreuse3",main = "Steps per Day Histogram",xlab = "Sum of Steps per Day")
+```
+
+* Mean of total number of steps per day: **`r toString(round(mean(x),digits=2))`**
+```{r results="hide"}
+mean(x)
+```
+
+* Median of total number of steps per day: **`r toString(median(x))`**
+```{r results="hide"}
+median(x)
+```
+
+As spected, replacing missing values with average values brought mean and median closer to the total number of steps for a day with average values: **`r toString(sum(averageValSteps))`**
+
+## Are there differences in activity patterns between weekdays and weekends?
+
+* Creating factor vector from fullData, with 2 levels: "weekdays" & "weekends"
+```{r echo=TRUE}
+x <- factor(weekdays(fullData[,2],abbreviate=TRUE))
+levels(x) <- list(weekday=c("Mon","Tue","Wed","Thu","Fri"),weekend=c("Sat","Sun"))
+```
+* Adding column to fullData. 2 types of days: weekdays & weekends.
+```{r echo=TRUE}
+fullData[,"day"] <- x
+```
+* Average number of steps taken per interval, per type of day:
+```{r echo=TRUE}
+x <- aggregate(steps~interval+day,fullData,mean)
+```
+* Plotting using lattice:
+```{r echo=TRUE}
+library(lattice)
+xyplot(steps~interval|day,data=x,layout=c(1,2),type="l")
+```
+
+It is noticeable that weekdays have a distribution much more similar to the overall average of steps taken per interval, than weekends. It would have been something very important to consider when imputing the missing values on part 4.
